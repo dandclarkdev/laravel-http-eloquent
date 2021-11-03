@@ -16,6 +16,11 @@ class Query
         return $this;
     }
 
+    public function dummy()
+    {
+        return 'dafshjk';
+    }
+
     public function toArray(): array
     {
         return $this->parts;
