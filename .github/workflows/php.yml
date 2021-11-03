@@ -42,5 +42,5 @@ jobs:
       run: chmod +x codecov;
     
     - name: Run codecov uploader
-      run: ./codecov
+      run: ./codecov -f coverage.xml
           
