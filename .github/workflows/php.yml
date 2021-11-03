@@ -9,6 +9,9 @@ on:
 jobs:
   build:
 
+    env:
+      XDEBUG_MODE: coverage
+
     runs-on: ubuntu-latest
 
     steps:
