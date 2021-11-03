@@ -34,3 +34,13 @@ jobs:
 
     - name: Run test suite
       run: vendor/bin/phpunit --testdox --colors=always --coverage-html coverage
+      
+    - name: Download codecov uploader
+      run: curl -Os https://uploader.codecov.io/latest/linux/codecov;
+      
+    - name: Change codecov uploader permissions
+      run: chmod +x codecov;
+    
+    - name: Run codecov uploader
+      run: ./codecov -f coverage.xml
+          
