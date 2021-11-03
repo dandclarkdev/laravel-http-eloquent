@@ -20,7 +20,7 @@ class ServiceFactory implements ServiceFactoryInterface
                     $config['base_url']
                 ),
                 new ModelMap(
-                    $config['models']
+                    $config['models'] ?? []
                 )
             )
         );
