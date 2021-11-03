@@ -3,6 +3,8 @@
 namespace LaravelHttpEloquent\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelHttpEloquent\ConfigProviders\LaravelConfigProvider;
+use LaravelHttpEloquent\HttpClients\LaravelHttpClient;
 use LaravelHttpEloquent\ServiceFactory;
 use LaravelHttpEloquent\Interfaces\ServiceFactory as ServiceFactoryInterface;
 
@@ -16,7 +18,10 @@ class LaravelHttpEloquentServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(ServiceFactoryInterface::class, function () {
-            return new ServiceFactory();
+            return new ServiceFactory(
+                new LaravelConfigProvider(),
+                new LaravelHttpClient()
+            );
         });
     }
 

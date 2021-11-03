@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use LaravelHttpEloquent\Types\Query;
 use LaravelHttpEloquent\GenericModel;
+use LaravelHttpEloquent\Interfaces\HttpClient;
 use LaravelHttpEloquent\Types\BaseUrl;
 use LaravelHttpEloquent\Types\ModelMap;
 use LaravelHttpEloquent\Types\ServiceConfig;
@@ -49,31 +50,44 @@ class Service implements ServiceInterface
      */
     protected $plural = false;
 
-    public function __construct(ServiceConfig $config)
+    /**
+     * @var \LaravelHttpEloquent\Interfaces\HttpClient
+     */
+    protected $client;
+
+    public function __construct(ServiceConfig $config, HttpClient $client)
     {
         $this->baseUrl = $config->getBaseUrl();
         $this->path = new Path();
         $this->query = new Query();
         $this->modelMap = $config->getModelMap();
+        $this->client = $client;
     }
 
-    public function one($class = null) {
-        $this->plural = false;
+    public function getClient(): HttpClient
+    {
+        return $this->client;
+    }
 
-        if($class !== null) {
-            $this->immutableResolveTo = true;
-            $this->resolveTo = $class;
+    public function one($class = null): self
+    {
+        $this->setPlural(false);
+
+        if ($class !== null) {
+            $this->setImmutableResolveTo(true);
+            $this->setResolveTo($class);
         }
 
         return $this;
     }
 
-    public function many($class = null) {
-        $this->plural = true;
+    public function many($class = null): self
+    {
+        $this->setPlural(true);
 
-        if($class !== null) {
-            $this->immutableResolveTo = true;
-            $this->resolveTo = $class;
+        if ($class !== null) {
+            $this->setImmutableResolveTo(true);
+            $this->setResolveTo($class);
         }
 
         return $this;
@@ -91,9 +105,9 @@ class Service implements ServiceInterface
 
     protected function resolve(Response $response)
     {
-        $class = $this->resolveTo;
+        $class = $this->getResolveTo();
 
-        if ($this->plural) {
+        if ($this->getPlural()) {
             return $response->collect()
                 ->map(function (array $item) use ($class) {
                     return new $class(...$item);
@@ -105,55 +119,68 @@ class Service implements ServiceInterface
 
     public function first()
     {
-        $this->plural = true;
+        $this->setPlural(true);
 
         return $this->resolve(
-            Http::get($this->getUrl(), $this->query->toArray())
+            $this->getClient()
+                ->get(
+                    $this->getUrl(),
+                    $this->getQuery()->toArray()
+                )
         )->first();
     }
 
     public function get()
     {
         return $this->resolve(
-            Http::get($this->getUrl(), $this->query->toArray())
+            $this->getClient()->get(
+                $this->getUrl(),
+                $this->getQuery()->toArray()
+            )
         );
     }
 
-    public function create(array $params): Response
+    public function create(array $params)
     {
-        $this->plural = false;
+        $this->setPlural(false);
 
-        return Http::post($this->getUrl(), $params);
+        return $this->resolve(
+            $this->getClient()->post($this->getUrl(), $params)
+        );
     }
 
-    public function update(array $params): Response
+    public function update(array $params)
     {
-        $this->plural = false;
+        $this->setPlural(false);
 
-        return Http::patch($this->getUrl(), $params);
+        return $this->resolve(
+            $this->getClient()->patch($this->getUrl(), $params)
+        );
     }
 
-    public function delete(): Response
+    public function delete()
     {
-        $this->plural = false;
+        $this->setPlural(false);
 
-        return Http::delete($this->getUrl());
+        return $this->resolve(
+            $this->getClient()->delete($this->getUrl())
+        );
     }
 
-    public function find($id): Response
+    public function find($id)
     {
         $method = (string) $id;
 
-        $this->path->$method();
+        $this->getPath()->$method();
 
-        $this->plural = false;
+        $this->setPlural(false);
 
         return $this->get();
     }
 
     public function where($key, $value): self
     {
-        $this->query->where($key, $value);
+        $this->getQuery()->where($key, $value);
 
         return $this;
     }
@@ -161,17 +188,95 @@ class Service implements ServiceInterface
     public function getUrl(): string
     {
         return implode('/', [
-            (string) $this->baseUrl,
-            (string) $this->path
+            (string) $this->getBaseUrl(),
+            (string) $this->getPath()
         ]);
     }
 
-    public function getUrlWithQuery(): string
+     /**
+     * Get the value of plural
+     */
+    public function getPlural(): bool
     {
-        return implode('/', [
-            (string) $this->baseUrl,
-            (string) $this->path
-        ]) . '?' . (string) $this->query;
+        return $this->plural;
+    }
+
+    /**
+     * Set the value of plural
+     */
+    public function setPlural(bool $plural): self
+    {
+        $this->plural = $plural;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of immutableResolveTo
+     */
+    public function getImmutableResolveTo(): bool
+    {
+        return $this->immutableResolveTo;
+    }
+
+    /**
+     * Set the value of immutableResolveTo
+     */
+    public function setImmutableResolveTo(bool $immutableResolveTo): self
+    {
+        $this->immutableResolveTo = $immutableResolveTo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of resolveTo
+     */
+    public function getResolveTo(): string
+    {
+        return $this->resolveTo;
+    }
+
+    /**
+     * Set the value of resolveTo
+     */
+    public function setResolveTo(string $resolveTo): self
+    {
+        $this->resolveTo = $resolveTo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of modelMap
+     */
+    public function getModelMap(): ModelMap
+    {
+        return $this->modelMap;
+    }
+
+    /**
+     * Get the value of query
+     */
+    public function getQuery(): Query
+    {
+        return $this->query;
+    }
+
+    /**
+     * Get the value of path
+     */
+    public function getPath(): Path
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get the value of baseUrl
+     */
+    public function getBaseUrl(): BaseUrl
+    {
+        return $this->baseUrl;
     }
 
     public function __get(string $property)
@@ -182,18 +287,18 @@ class Service implements ServiceInterface
     public function __call(string $method, array $params): ServiceInterface
     {
         if (count($params) > 0) {
-            $this->path->$method($params[0]);
+            $this->getPath()->$method($params[0]);
         } else {
-            $this->plural = true;
+            $this->setPlural(true);
 
-            $this->path->$method();
+            $this->getPath()->$method();
         }
 
-        if(!$this->immutableResolveTo) {
-            if ($this->modelMap->has($method)) {
-                $this->resolveTo = $this->modelMap->get($method);
+        if (!$this->getImmutableResolveTo()) {
+            if ($this->getModelMap()->has($method)) {
+                $this->setResolveTo($this->getModelMap()->get($method));
             } else {
-                $this->resolveTo = GenericModel::class;
+                $this->setResolveTo(GenericModel::class);
             }
         }
 
