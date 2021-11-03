@@ -50,13 +50,13 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
-        },
-        "providers": [
-            "LaravelHttpEloquent\\Providers\\LaravelHttpEloquentServiceProvider"
-        ],
-        "aliases": {
-            "Service": "LaravelHttpEloquent\\Facades\\Service"
+            "dont-discover": [],
+            "providers": [
+                "LaravelHttpEloquent\\Providers\\LaravelHttpEloquentServiceProvider"
+            ],
+            "aliases": {
+                "Service": "LaravelHttpEloquent\\Facades\\Service"
+            }
         }
     },
     "config": {
