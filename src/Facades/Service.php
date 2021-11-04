@@ -3,7 +3,7 @@
 namespace LaravelHttpEloquent\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use LaravelHttpEloquent\Interfaces\ServiceFactory;
+use HttpEloquent\Interfaces\ServiceFactory;
 
 class Service extends Facade
 {

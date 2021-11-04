@@ -2,29 +2,33 @@
 
 namespace LaravelHttpEloquent\HttpClients;
 
-use Illuminate\Http\Client\Response;
-use LaravelHttpEloquent\Interfaces\HttpClient;
-use Illuminate\Http\Client\Factory as ClientFactory;
+use Illuminate\Support\Facades\Http;
+use HttpEloquent\Interfaces\HttpClient;
+use Psr\Http\Message\ResponseInterface;
 
 class LaravelHttpClient implements HttpClient
 {
-    public function get(string $url, array $query = []): Response
+    public function get(string $url, array $query = []): ResponseInterface
     {
-        return (new ClientFactory())->get($url, $query);
+        return Http::get($url, $query)
+            ->toPsrResponse();
     }
 
-    public function post(string $url, array $params): Response
+    public function post(string $url, array $params): ResponseInterface
     {
-        return (new ClientFactory())->post($url, $params);
+        return Http::post($url, $params)
+            ->toPsrResponse();
     }
 
-    public function patch(string $url, array $params): Response
+    public function patch(string $url, array $params): ResponseInterface
     {
-        return (new ClientFactory())->patch($url, $params);
+        return Http::patch($url, $params)
+            ->toPsrResponse();
     }
 
-    public function delete(string $url): Response
+    public function delete(string $url): ResponseInterface
     {
-        return (new ClientFactory())->delete($url);
+        return Http::delete($url)
+            ->toPsrResponse();
     }
 }

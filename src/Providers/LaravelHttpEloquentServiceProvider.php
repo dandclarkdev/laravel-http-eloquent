@@ -2,11 +2,11 @@
 
 namespace LaravelHttpEloquent\Providers;
 
+use HttpEloquent\ServiceFactory;
 use Illuminate\Support\ServiceProvider;
-use LaravelHttpEloquent\ConfigProviders\LaravelConfigProvider;
 use LaravelHttpEloquent\HttpClients\LaravelHttpClient;
-use LaravelHttpEloquent\ServiceFactory;
-use LaravelHttpEloquent\Interfaces\ServiceFactory as ServiceFactoryInterface;
+use LaravelHttpEloquent\ConfigProviders\LaravelConfigProvider;
+use HttpEloquent\Interfaces\ServiceFactory as ServiceFactoryInterface;
 
 class LaravelHttpEloquentServiceProvider extends ServiceProvider
 {

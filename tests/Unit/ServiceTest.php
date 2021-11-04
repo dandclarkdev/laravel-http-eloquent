@@ -4,26 +4,25 @@ namespace Tests\Unit;
 
 use Mockery;
 use stdClass;
-use Mockery\Mock;
+use HttpEloquent\GenericModel;
+use HttpEloquent\Types\BaseUrl;
 use PHPUnit\Framework\TestCase;
+use HttpEloquent\Types\ModelMap;
 use LaravelHttpEloquent\Service;
+use HttpEloquent\Types\ServiceConfig;
+use HttpEloquent\Interfaces\HttpClient;
+use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Support\Collection;
-use Illuminate\Http\Client\Response;
-use LaravelHttpEloquent\GenericModel;
-use LaravelHttpEloquent\Types\BaseUrl;
-use LaravelHttpEloquent\Types\ModelMap;
-use LaravelHttpEloquent\Types\ServiceConfig;
-use LaravelHttpEloquent\Interfaces\HttpClient;
 
 class ServiceTest extends TestCase
 {
     /**
-     * @var \LaravelHttpEloquent\Service
+     * @var \HttpEloquent\ServiceInterface
      */
     protected $service;
 
     /**
-     * @var \LaravelHttpEloquent\Interfaces\HttpClient|\Mockery\Mock
+     * @var \HttpEloquent\Interfaces\HttpClientInterface|\Mockery\Mock
      */
     protected $client;
 
@@ -32,7 +31,7 @@ class ServiceTest extends TestCase
         parent::setUp();
 
         /**
-         * @var \LaravelHttpEloquent\Interfaces\HttpClient|\Mockery\Mock
+         * @var \HttpEloquent\Interfaces\HttpClient|\Mockery\Mock
          */
         $this->client = Mockery::mock(HttpClient::class);
 
@@ -47,133 +46,31 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function testServiceIsAService(): void
-    {
-        $this->assertInstanceOf(
-            Service::class,
-            $this->service
-        );
-    }
-
-    public function testOneMethodSetsPropertiesCorrectly(): void
-    {
-        $this->service->one();
-
-        $this->assertEquals(GenericModel::class, $this->service->getResolveTo());
-
-        $this->assertFalse($this->service->getPlural());
-
-        $this->assertFalse($this->service->getImmutableResolveTo());
-
-        $this->service->one(stdClass::class);
-
-        $this->assertTrue($this->service->getImmutableResolveTo());
-
-        $this->assertEquals(stdClass::class, $this->service->getResolveTo());
-    }
-
-    public function testPathWithModelNotInMapSetsPropertiesCorrectly(): void
-    {
-        $this->service->blah();
-
-        $this->assertEquals(GenericModel::class, $this->service->getResolveTo());
-    }
-
-    public function testManyMethodSetsPropertiesCorrectly(): void
-    {
-        $this->service->many();
-
-        $this->assertEquals(GenericModel::class, $this->service->getResolveTo());
-
-        $this->assertTrue($this->service->getPlural());
-
-        $this->assertFalse($this->service->getImmutableResolveTo());
-
-        $this->service->many(stdClass::class);
-
-        $this->assertTrue($this->service->getImmutableResolveTo());
-
-        $this->assertEquals(stdClass::class, $this->service->getResolveTo());
-    }
-
-    public function testPaginationSetsPropertiesCorrectly(): void
-    {
-        $this->assertEquals('', (string) $this->service->getQuery());
-
-        $this->service->page(1);
-
-        $this->assertEquals('page=1', (string) $this->service->getQuery());
-
-        $this->service->perPage(10);
-
-        $this->assertEquals('page=1&per_page=10', (string) $this->service->getQuery());
-    }
-
-    public function testFirstMethodWorks(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'collect' => collect([
-                [
-                    'foo' => 'bar'
-                ]
-            ])
-        ]);
-
-        $this->client->shouldReceive([
-            'get' => $response
-        ]);
-
-        $model = $this->service->first();
-
-        $this->assertInstanceOf(GenericModel::class, $model);
-
-        $this->assertEquals('bar', $model->foo);
-    }
-
     public function testCanGetMultipleModels(): void
     {
         /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
+         * @var \Psr\Http\Message\ResponseInterface
          */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'collect' => collect([
-                [
-                    'foo' => 'bar'
-                ]
-            ])
-        ]);
+        $response = new Psr7Response(200, [], json_encode([[ 'foo' => 'bar' ]]));
 
         $this->client->shouldReceive([
             'get' => $response
         ]);
 
-        $collection = $this->service->foos()->get();
+        $results = $this->service->foos()->get();
 
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertInstanceOf(GenericModel::class, $collection->first());
-        $this->assertEquals('bar', $collection->first()->foo);
-        $this->assertEquals(1, $collection->count());
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(GenericModel::class, $results->first());
+        $this->assertEquals('bar',  $results->first()->foo);
+        $this->assertEquals(1, count($results));
     }
 
     public function testCanGetSingleModel(): void
     {
         /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
+         * @var \Psr\Http\Message\ResponseInterface
          */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'json' => [
-                'foo' => 'bar'
-            ]
-        ]);
+        $response = new Psr7Response(200, [], json_encode([ 'foo' => 'bar' ]));
 
         $this->client->shouldReceive([
             'get' => $response
@@ -184,133 +81,5 @@ class ServiceTest extends TestCase
         $this->assertInstanceOf(GenericModel::class, $model);
 
         $this->assertEquals('bar', $model->foo);
-    }
-
-    public function testCanFindModel(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'json' => [
-                'foo' => 'bar'
-            ]
-        ]);
-
-        $this->client->shouldReceive([
-            'get' => $response
-        ]);
-
-        $model = $this->service->foos()->find(1);
-
-        $this->assertInstanceOf(GenericModel::class, $model);
-
-        $this->assertEquals('bar', $model->foo);
-    }
-
-    public function testCanCreateModel(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'json' => [
-                'foo' => 'bar'
-            ]
-        ]);
-
-        $this->client->shouldReceive([
-            'post' => $response
-        ]);
-
-        $model = $this->service->foos()->create([
-            'foo' => 'bar'
-        ]);
-
-        $this->assertInstanceOf(GenericModel::class, $model);
-
-        $this->assertEquals('bar', $model->foo);
-    }
-
-    public function testCanUpdateModel(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'json' => [
-                'foo' => 'bar'
-            ]
-        ]);
-
-        $this->client->shouldReceive([
-            'patch' => $response
-        ]);
-
-        $model = $this->service->foos(1)->update([
-            'foo' => 'bar'
-        ]);
-
-        $this->assertInstanceOf(GenericModel::class, $model);
-
-        $this->assertEquals('bar', $model->foo);
-    }
-
-    public function testCanDeleteModel(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'json' => [
-                'foo' => 'bar'
-            ]
-        ]);
-
-        $this->client->shouldReceive([
-            'delete' => $response
-        ]);
-
-        $model = $this->service->foos(1)->delete();
-
-        $this->assertInstanceOf(GenericModel::class, $model);
-
-        $this->assertEquals('bar', $model->foo);
-    }
-
-    public function testCanGetModelWithMagicMethod(): void
-    {
-        /**
-         * @var \Illuminate\Http\Client\Response|\Mockery\Mock
-         */
-        $response = Mockery::mock(Response::class);
-
-        $response->shouldReceive([
-            'collect' => collect([
-                [
-                    'foo' => 'bar'
-                ]
-            ])
-        ]);
-
-        $this->client->shouldReceive([
-            'get' => $response
-        ]);
-
-        $collection = $this->service->foos;
-
-        $this->assertTrue($this->service->getPlural());
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertInstanceOf(GenericModel::class, $collection->first());
-        $this->assertEquals('bar', $collection->first()->foo);
-        $this->assertEquals(1, $collection->count());
     }
 }
