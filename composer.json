@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
-        "dandclarkdev/http-eloquent": "^0.1.1",
+        "dandclarkdev/http-eloquent": "^0.1.2",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.65",
         "laravel/tinker": "^2.5"

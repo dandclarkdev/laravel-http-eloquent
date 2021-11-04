@@ -7,10 +7,11 @@ use HttpEloquent\Types\ModelMap;
 use LaravelHttpEloquent\Service;
 use HttpEloquent\Types\ServiceConfig;
 use HttpEloquent\ServiceFactory as BaseServiceFactory;
+use HttpEloquent\Interfaces\Service as ServiceInterface;
 
 class ServiceFactory extends BaseServiceFactory
 {
-    public function make(string $serviceName): Service
+    public function make(string $serviceName): ServiceInterface
     {
         $config = $this->configProvider->getConfig(
             $serviceName
