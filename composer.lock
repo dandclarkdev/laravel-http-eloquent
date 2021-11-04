@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16e0494eb5ed28881979198d5e22eb14",
+    "content-hash": "4b7ee9e81053db55c0c795399433f59c",
     "packages": [
         {
             "name": "brick/math",
@@ -68,16 +68,16 @@
         },
         {
             "name": "dandclarkdev/http-eloquent",
-            "version": "0.1.2",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dandclarkdev/http-eloquent.git",
-                "reference": "063ed22a44cca3ca14cf556420681cc5f70ef87f"
+                "reference": "07c8bc45f67ec155fbed90ed57f6888486a32114"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dandclarkdev/http-eloquent/zipball/063ed22a44cca3ca14cf556420681cc5f70ef87f",
-                "reference": "063ed22a44cca3ca14cf556420681cc5f70ef87f",
+                "url": "https://api.github.com/repos/dandclarkdev/http-eloquent/zipball/07c8bc45f67ec155fbed90ed57f6888486a32114",
+                "reference": "07c8bc45f67ec155fbed90ed57f6888486a32114",
                 "shasum": ""
             },
             "require": {
@@ -88,6 +88,7 @@
                 "mockery/mockery": "^1.4.4",
                 "phpunit/phpunit": "^9.5.10"
             },
+            "default-branch": true,
             "type": "project",
             "autoload": {
                 "psr-4": {
@@ -109,10 +110,10 @@
             ],
             "description": "Eloquent-style HTTP query builder",
             "support": {
-                "source": "https://github.com/dandclarkdev/http-eloquent/tree/0.1.2",
+                "source": "https://github.com/dandclarkdev/http-eloquent/tree/main",
                 "issues": "https://github.com/dandclarkdev/http-eloquent/issues"
             },
-            "time": "2021-11-04T16:19:45+00:00"
+            "time": "2021-11-04T17:02:29+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -7582,7 +7583,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "dandclarkdev/http-eloquent": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
