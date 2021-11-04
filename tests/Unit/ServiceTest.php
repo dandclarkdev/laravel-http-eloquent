@@ -12,6 +12,7 @@ use LaravelHttpEloquent\Service;
 use HttpEloquent\Types\ServiceConfig;
 use HttpEloquent\Interfaces\HttpClient;
 use GuzzleHttp\Psr7\Response as Psr7Response;
+use HttpEloquent\Types\WrapperProperty;
 use Illuminate\Support\Collection;
 
 class ServiceTest extends TestCase
@@ -40,7 +41,8 @@ class ServiceTest extends TestCase
                 new BaseUrl('https://foo.com'),
                 new ModelMap([
                     'foos' => GenericModel::class,
-                ])
+                ]),
+                new WrapperProperty('data')
             ),
             $this->client
         );
@@ -51,7 +53,11 @@ class ServiceTest extends TestCase
         /**
          * @var \Psr\Http\Message\ResponseInterface
          */
-        $response = new Psr7Response(200, [], json_encode([[ 'foo' => 'bar' ]]));
+        $response = new Psr7Response(200, [], json_encode([
+            'data' => [
+                [ 'foo' => 'bar' ]
+            ]
+        ]));
 
         $this->client->shouldReceive([
             'get' => $response
@@ -70,7 +76,11 @@ class ServiceTest extends TestCase
         /**
          * @var \Psr\Http\Message\ResponseInterface
          */
-        $response = new Psr7Response(200, [], json_encode([[ 'foo' => 'bar' ]]));
+        $response = new Psr7Response(200, [], json_encode([
+            'data' => [
+                [ 'foo' => 'bar' ]
+            ]
+        ]));
 
         $this->client->shouldReceive([
             'get' => $response
@@ -89,7 +99,9 @@ class ServiceTest extends TestCase
         /**
          * @var \Psr\Http\Message\ResponseInterface
          */
-        $response = new Psr7Response(200, [], json_encode([ 'foo' => 'bar' ]));
+        $response = new Psr7Response(200, [], json_encode([
+            'data' => [ 'foo' => 'bar' ]
+        ]));
 
         $this->client->shouldReceive([
             'get' => $response

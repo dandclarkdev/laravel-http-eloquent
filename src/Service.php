@@ -2,8 +2,6 @@
 
 namespace LaravelHttpEloquent;
 
-use Illuminate\Support\Str;
-use Illuminate\Http\Client\Response;
 use Psr\Http\Message\ResponseInterface;
 use HttpEloquent\Service as BaseService;
 

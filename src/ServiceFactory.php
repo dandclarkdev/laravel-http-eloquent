@@ -8,6 +8,7 @@ use LaravelHttpEloquent\Service;
 use HttpEloquent\Types\ServiceConfig;
 use HttpEloquent\ServiceFactory as BaseServiceFactory;
 use HttpEloquent\Interfaces\Service as ServiceInterface;
+use HttpEloquent\Types\WrapperProperty;
 
 class ServiceFactory extends BaseServiceFactory
 {
@@ -24,7 +25,10 @@ class ServiceFactory extends BaseServiceFactory
                 ),
                 new ModelMap(
                     $config['models'] ?? []
-                )
+                ),
+                isset($config['wrapper']) ? new WrapperProperty(
+                    $config['wrapper']
+                ) : null
             ),
             $this->getClient()
         );
