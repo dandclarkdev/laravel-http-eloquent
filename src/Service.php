@@ -13,7 +13,7 @@ class Service extends BaseService
         $class = $this->getResolveTo();
 
         if ($this->getPlural()) {
-            return (new Response($response)) ->collect()
+            return (new Response($response))->collect()
                 ->map(function (array $item) use ($class) {
                     return new $class(...$item);
                 });
