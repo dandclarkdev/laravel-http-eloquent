@@ -65,6 +65,25 @@ class ServiceTest extends TestCase
         $this->assertEquals(1, count($results));
     }
 
+    public function testCanGetMultipleModelsWithMagicMethod(): void
+    {
+        /**
+         * @var \Psr\Http\Message\ResponseInterface
+         */
+        $response = new Psr7Response(200, [], json_encode([[ 'foo' => 'bar' ]]));
+
+        $this->client->shouldReceive([
+            'get' => $response
+        ]);
+
+        $results = $this->service->foos;
+
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(GenericModel::class, $results->first());
+        $this->assertEquals('bar',  $results->first()->foo);
+        $this->assertEquals(1, count($results));
+    }
+
     public function testCanGetSingleModel(): void
     {
         /**
