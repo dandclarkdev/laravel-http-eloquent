@@ -36,7 +36,7 @@ jobs:
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
     - name: Run test suite
-      run: vendor/bin/phpunit --testdox --colors=always --coverage-clover coverage.xml
+      run: composer test
       
     - name: Download codecov uploader
       run: curl -Os https://uploader.codecov.io/latest/linux/codecov;

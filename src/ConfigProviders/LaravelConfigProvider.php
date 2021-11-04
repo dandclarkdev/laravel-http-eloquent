@@ -2,12 +2,12 @@
 
 namespace LaravelHttpEloquent\ConfigProviders;
 
-use LaravelHttpEloquent\Interfaces\ConfigProvider;
+use HttpEloquent\Interfaces\ConfigProvider;
 
 class LaravelConfigProvider implements ConfigProvider
 {
     public function getConfig(string $root): array
     {
-        return config("laravelhttpeloquent.$root");
+        return config("laravelhttpeloquent.services.$root");
     }
 }
